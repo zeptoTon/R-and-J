@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>Pure JavaScript Applcaition</title>
+  </head>
+  <body>
+    <nav>
+      <li>Table</li>
+      <li>Form</li>
+      <li>Image Slider</li>
+    </nav>
+    <section id="demo-table">
+      <h2>Get Clinics in UK</h2>
+      <p>This part will illurstrate fetching data from API (<a href="https://data.gov.uk/data/api/">https://data.gov.uk/data/api/</a>)</p>
+      <label for="number-of-clinics">Number of Clinics:</label>
+      <select name="number-of-clinics" id="number-of-clinics">
+        <option val="10">10</option>
+        <option val="100">100</option>
+        <option val="1000">1000</option>
+      </select>
+      <input type="button" class="clinics-get-btn" value="Get"/>
+      <div class="content">
+      </div>
+    </section>
+    <script src="/js/pure.js" > </script>
+  </body>
+</html>
