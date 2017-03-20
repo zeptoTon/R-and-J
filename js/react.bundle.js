@@ -22027,6 +22027,8 @@ module.exports = traverseAllChildren;
 "use strict";
 
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(85);
 
 var _react2 = _interopRequireDefault(_react);
@@ -22037,13 +22039,188 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 console.log("react-index.js");
 
-_reactDom2.default.render(_react2.default.createElement(
-  'h1',
-  null,
-  'Hello, world!'
-), document.getElementById('root'));
+/**
+ * require keys and row in props
+ */
+function ClinicsRow(props) {
+  return _react2.default.createElement(
+    'tr',
+    null,
+    props.keys.map(function (v, i) {
+      return _react2.default.createElement(
+        'td',
+        { key: v },
+        props.row[v]
+      );
+    })
+  );
+}
+
+function ClinicsHeader(props) {
+  return _react2.default.createElement(
+    'thead',
+    null,
+    _react2.default.createElement(
+      'tr',
+      null,
+      props.keys.map(function (v, i) {
+        return _react2.default.createElement(
+          'th',
+          { key: v + i.toString() },
+          v
+        );
+      })
+    )
+  );
+}
+
+function ClinicsTable(props) {
+  if (props.rows.length == 0) return null;
+
+  var keys = Object.keys(props.rows[0]);
+  keys = keys.filter(function (k) {
+    var expections = ["latlong", "sub_type", "longitude", "latitude", "organisation_type"];
+    return !(expections.indexOf(k) >= 0);
+  });
+  return _react2.default.createElement(
+    'table',
+    null,
+    _react2.default.createElement(ClinicsHeader, { keys: keys }),
+    _react2.default.createElement(
+      'tbody',
+      null,
+      props.rows.map(function (v, i) {
+        return _react2.default.createElement(ClinicsRow, { key: i.toString(), keys: keys, row: v });
+      })
+    )
+  );
+}
+
+ClinicsRow.propTypes = {
+  row: _react2.default.PropTypes.object.isRequired
+};
+
+var ClinicsSection = function (_React$Component) {
+  _inherits(ClinicsSection, _React$Component);
+
+  function ClinicsSection(props) {
+    _classCallCheck(this, ClinicsSection);
+
+    // how to add listener?
+    var _this = _possibleConstructorReturn(this, (ClinicsSection.__proto__ || Object.getPrototypeOf(ClinicsSection)).call(this, props));
+
+    _this.formSubmit = _this.formSubmit.bind(_this);
+    _this.state = { rows: [] };
+    console.log("constructing!");
+    return _this;
+  }
+
+  _createClass(ClinicsSection, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      console.log("mounted!");
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      console.log("unmounted!");
+    }
+
+    // handler
+
+  }, {
+    key: 'formSubmit',
+    value: function formSubmit(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      var api = "https://data.gov.uk/data/api/service/health/sql?query={q}";
+      var number = e.target.elements["number-of-clinics"].value;
+      var url = api.replace('{q}', "SELECT * FROM clinics LIMIT {value}").replace("{value}", number);
+      var self = this;
+      fetch(url).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        // notice why I use arrow function in here?
+        // set state
+        if (json["success"]) {
+          var result = json["result"];
+          _this2.setState({
+            rows: result
+          });
+        }
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'form',
+        { onSubmit: this.formSubmit },
+        ' ',
+        _react2.default.createElement(
+          'h2',
+          null,
+          'Get Clinics in UK'
+        ),
+        _react2.default.createElement(
+          'p',
+          null,
+          'This part will illurstrate fetching data from API (',
+          _react2.default.createElement(
+            'a',
+            { href: 'https://data.gov.uk/data/api/' },
+            'https://data.gov.uk/data/api/'
+          ),
+          ')'
+        ),
+        _react2.default.createElement(
+          'label',
+          { htmlFor: 'number-of-clinics' },
+          'Number of Clinics:'
+        ),
+        _react2.default.createElement(
+          'select',
+          { name: 'number-of-clinics', id: 'number-of-clinics' },
+          _react2.default.createElement(
+            'option',
+            { value: '10' },
+            '10'
+          ),
+          _react2.default.createElement(
+            'option',
+            { value: '100' },
+            '100'
+          ),
+          _react2.default.createElement(
+            'option',
+            { value: '1000' },
+            '1000'
+          )
+        ),
+        _react2.default.createElement('input', { type: 'submit', className: 'clinics-get-btn', value: 'Get' }),
+        _react2.default.createElement(
+          'div',
+          { className: 'content' },
+          _react2.default.createElement(ClinicsTable, { rows: this.state.rows })
+        )
+      );
+    }
+  }]);
+
+  return ClinicsSection;
+}(_react2.default.Component);
+
+var clinicsW = _react2.default.createElement(ClinicsSection, null);
+_reactDom2.default.render(clinicsW, document.getElementById("demo-table"));
 
 /***/ })
 /******/ ]);
